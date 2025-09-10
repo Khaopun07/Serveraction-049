@@ -1,52 +1,54 @@
 import React from 'react';
-import { getAllStudents } from './actions/์StudentActions';
-import Header from './Header';
-import Footer from './Footer';
+import Link from 'next/link';
+import { getAllStudents } from '../actions/์StudentActions';
+import Header from '@/app/Header';
 import { getServerSession } from 'next-auth';
-import { authOptions } from './api/auth/[...nextauth]/route';
+import { authOptions } from '../api/auth/[...nextauth]/route';
+import { redirect } from 'next/navigation';
 
-export default async function HomePage() {
+export default async function StudentListDisplay() {
   const session = await getServerSession(authOptions);
+
+  if (!session) {
+    redirect('/login');
+  }
+
   const students = await getAllStudents();
 
-  const tableStyle: React.CSSProperties = {
-    width: '100%',
-    borderCollapse: 'collapse',
-    marginTop: '16px',
-  };
-
-  const thTdStyle: React.CSSProperties = {
-    border: '1px solid #FFA500',
-    padding: '8px',
-    textAlign: 'left',
-  };
-
-  const headerStyle: React.CSSProperties = {
-    color: 'white',
-    backgroundColor: '#FFA500',
-    padding: '8px',
-  };
-
-  const linkStyle: React.CSSProperties = {
-    color: '#FFA500',
-    textDecoration: 'none',
-    marginRight: '8px',
-  };
-
   return (
-    <div className="flex flex-col min-h-screen">
-      {/* Header */}
+    <>
+      {/* Header พร้อม Logout */}
       <Header session={session} />
 
-      {/* Main content */}
-      <main className="flex-grow p-6">
-        <h1 className="text-2xl font-bold mb-4" style={{ color: '#FF8C00' }}>
-          รายชื่อนักศึกษา
-        </h1>
+      <main className="p-6">
+        <h1 style={{ color: '#FF8C00', marginBottom: '16px', fontSize: '1.5rem' }}>รายชื่อนักศึกษา</h1>
 
-        {/* ตารางนักศึกษา */}
+        {/* ปุ่มเพิ่มนักศึกษา */}
+        <div>
+          <Link
+            href="/addaction"
+            style={{
+              display: 'inline-block',
+              marginTop: '8px',
+              padding: '6px 12px',
+              backgroundColor: '#FFA500',
+              color: 'white',
+              textDecoration: 'none',
+              borderRadius: '4px',
+            }}
+          >
+            + เพิ่มนักศึกษา
+          </Link>
+        </div>
+
         {students.length > 0 ? (
-          <table className="w-full border-collapse mt-4" style={{ border: '1px solid #FFA500' }}>
+          <table
+            style={{
+              width: '100%',
+              borderCollapse: 'collapse',
+              marginTop: '16px',
+            }}
+          >
             <thead>
               <tr>
                 <th style={{ backgroundColor: '#FFA500', color: 'white', padding: '8px' }}>ID</th>
@@ -56,6 +58,7 @@ export default async function HomePage() {
                 <th style={{ backgroundColor: '#FFA500', color: 'white', padding: '8px' }}>อีเมล</th>
                 <th style={{ backgroundColor: '#FFA500', color: 'white', padding: '8px' }}>เบอร์โทร</th>
                 <th style={{ backgroundColor: '#FFA500', color: 'white', padding: '8px' }}>วันที่สมัคร</th>
+                <th style={{ backgroundColor: '#FFA500', color: 'white', padding: '8px' }}>การจัดการ</th>
               </tr>
             </thead>
             <tbody>
@@ -76,17 +79,22 @@ export default async function HomePage() {
                   <td style={{ border: '1px solid #FFA500', padding: '8px' }}>
                     {new Date(student.createdAt).toLocaleDateString('th-TH')}
                   </td>
+                  <td style={{ border: '1px solid #FFA500', padding: '8px' }}>
+                    <Link href={`/editaction/${student.id}`} style={{ color: '#FFA500', marginRight: '8px' }}>
+                      แก้ไข
+                    </Link>
+                    <Link href={`/Deleteaction/${student.id}`} style={{ color: '#FFA500' }}>
+                      ลบ
+                    </Link>
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         ) : (
-          <p>ไม่มีข้อมูลนักศึกษา</p>
+          <p style={{ marginTop: '16px' }}>ไม่มีข้อมูลนักศึกษา</p>
         )}
       </main>
-
-      {/* Footer ติดล่างสุด */}
-      <Footer />
-    </div>
+    </>
   );
 }

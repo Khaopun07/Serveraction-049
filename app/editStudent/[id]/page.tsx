@@ -145,7 +145,7 @@ export default function EditStudentForm() {
         {loading ? '⏳ กำลังบันทึก...' : '✅ บันทึกการแก้ไข'}
       </button>
 
-      <Link href="/" style={backButtonStyle}>
+      <Link href="/dashboard" style={backButtonStyle}>
         ⬅️ ย้อนกลับ
       </Link>
 
